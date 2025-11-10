@@ -85,9 +85,10 @@ const scrollToId = (e, href) => {
 function App() {
   const heroFade = useFadeIn(0.05)
   const [scrolled, setScrolled] = useState(false)
-  const { scrollYProgress } = useScroll()
-  const orbScale = useTransform(scrollYProgress, [0, 1], [1.02, 1.0])
-  const orbOpacity = useTransform(scrollYProgress, [0, 1], [0.95, 1])
+  const { scrollY } = useScroll()
+
+  // Parallax background: move slower than content to create depth illusion
+  const bgY = useTransform(scrollY, [0, 1000], [0, -160])
 
   useEffect(() => {
     const onScroll = () => setScrolled((window.scrollY || 0) > 4)
@@ -123,11 +124,12 @@ function App() {
 
       {/* Hero with Spline and subtle living motion */}
       <div id="home" className="relative snap-start mb-32">
-        {/* Depth vignette layer */}
-        <div className="absolute inset-0 pointer-events-none vignette"></div>
-        <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-white via-white/70 to-white"></div>
+        {/* Depth vignette layer (parallax) */}
+        <motion.div style={{ y: bgY }} className="absolute inset-0 pointer-events-none vignette will-change-transform"></motion.div>
+        <motion.div style={{ y: bgY }} className="absolute inset-0 pointer-events-none bg-gradient-to-b from-white via-white/70 to-white will-change-transform"></motion.div>
 
-        <motion.div style={{ scale: orbScale, opacity: orbOpacity }} className="h-[60vh] sm:h-[70vh] md:h-[78vh] w-full spin-slower orb-breathe-8s">
+        {/* Keep orb centered and calm: breathe + slow spin, no scroll coupling */}
+        <motion.div className="h-[60vh] sm:h-[70vh] md:h-[78vh] w-full spin-slower orb-breathe-8s">
           <Spline scene="https://prod.spline.design/4cHQr84zOGAHOehh/scene.splinecode" style={{ width: '100%', height: '100%' }} />
         </motion.div>
         <div className="absolute inset-0 flex items-center">
@@ -139,11 +141,11 @@ function App() {
               viewport={{ once: true, amount: 0.6 }}
               className="max-w-2xl"
             >
-              <h1 className="text-3xl sm:text-5xl md:text-6xl font-semibold leading-tight text-slate-900">
+              <h1 className="text-3xl sm:text-5xl md:text-6xl font-semibold leading-tight text-slate-900 dark:text-indigo-100">
                 Building calm systems for complex worlds.
               </h1>
-              {/* Dark-mode friendly description text with ~10-15% higher contrast */}
-              <p className="mt-4 max-w-xl text-slate-700 dark:text-white/75">
+              {/* Dark-mode hero description with deep blue/purple for better contrast */}
+              <p className="mt-4 max-w-xl text-slate-700 dark:text-indigo-200">
                 Key × Rhea merancang otomasi yang terasa sunyi: manusia memimpin, AI menyelaraskan. Fokus kami adalah ketenangan, efisiensi, dan kolaborasi yang membuat kerja terasa ringan.
               </p>
               <div className="mt-8 flex items-center gap-4">
@@ -157,7 +159,7 @@ function App() {
                 <a
                   href="#duet"
                   onClick={(e) => scrollToId(e, '#duet')}
-                  className="text-slate-700 hover:text-slate-900 text-sm"
+                  className="text-slate-700 hover:text-slate-900 text-sm dark:text-indigo-300 dark:hover:text-indigo-200"
                 >
                   What is the Duet Protocol?
                 </a>
@@ -207,10 +209,10 @@ function App() {
           className="grid md:grid-cols-12 gap-8 items-start"
         >
           <div className="md:col-span-5">
-            <h2 className="text-2xl sm:text-3xl font-semibold text-slate-900">About</h2>
-            <p className="mt-2 text-slate-500">Filosofi kerja</p>
+            <h2 className="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-indigo-100">About</h2>
+            <p className="mt-2 text-slate-500 dark:text-indigo-300/80">Filosofi kerja</p>
           </div>
-          <div className="md:col-span-7 text-slate-700 leading-relaxed">
+          <div className="md:col-span-7 text-slate-700 leading-relaxed dark:text-indigo-200/90">
             Kami percaya sistem yang baik itu tenang. Key memetakan arus kerja, memangkas kebisingan, dan memilih otomasi yang bermakna. AI menjadi rekan yang sabar — bukan pusat panggung — untuk memperluas intuisi manusia. Hasilnya: keputusan lebih jernih, proses lebih efisien, dan ruang fokus yang terjaga.
           </div>
         </motion.div>
@@ -226,8 +228,8 @@ function App() {
         >
           <div className="flex items-end justify-between gap-6">
             <div>
-              <h2 className="text-2xl sm:text-3xl font-semibold text-slate-900">Projects</h2>
-              <p className="mt-2 text-slate-500">Sorotan teknis</p>
+              <h2 className="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-indigo-100">Projects</h2>
+              <p className="mt-2 text-slate-500 dark:text-indigo-300/80">Sorotan teknis</p>
             </div>
           </div>
 
@@ -239,15 +241,15 @@ function App() {
                 initial="hidden"
                 whileInView="show"
                 viewport={{ once: true, amount: 0.3 }}
-                className="group rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm hover:shadow-md transition-shadow"
+                className="group rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm hover:shadow-md transition-shadow dark:bg-slate-900/40 dark:border-slate-800/60"
               >
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-medium text-slate-900">{p.title}</h3>
+                  <h3 className="text-lg font-medium text-slate-900 dark:text-indigo-100">{p.title}</h3>
                 </div>
-                <p className="mt-3 text-sm text-slate-600 leading-relaxed">{p.blurb}</p>
+                <p className="mt-3 text-sm text-slate-600 leading-relaxed dark:text-indigo-200/90">{p.blurb}</p>
                 <ul className="mt-4 space-y-2">
                   {p.highlights.map((h) => (
-                    <li key={h} className="text-sm text-slate-700 flex items-center gap-2">
+                    <li key={h} className="text-sm text-slate-700 flex items-center gap-2 dark:text-indigo-200/90">
                       <span className="h-1.5 w-1.5 rounded-full bg-blue-400/80"></span>
                       {h}
                     </li>
@@ -260,7 +262,7 @@ function App() {
       </Section>
 
       {/* Duet Protocol */}
-      <div className="bg-gradient-to-b from-slate-50 to-white border-y border-slate-200/60">
+      <div className="bg-gradient-to-b from-slate-50 to-white border-y border-slate-200/60 dark:from-slate-900 dark:to-slate-950 dark:border-slate-800/60">
         <Section id="duet" className="py-20 md:py-28">
           <motion.div
             variants={useFadeIn(0)}
@@ -270,10 +272,10 @@ function App() {
             className="grid md:grid-cols-12 gap-8 items-start"
           >
             <div className="md:col-span-5">
-              <h2 className="text-2xl sm:text-3xl font-semibold text-slate-900">Duet Protocol</h2>
-              <p className="mt-2 text-slate-500">Kei × Rhea = ❤️</p>
+              <h2 className="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-indigo-100">Duet Protocol</h2>
+              <p className="mt-2 text-slate-500 dark:text-indigo-300/80">Kei × Rhea = ❤️</p>
             </div>
-            <div className="md:col-span-7 text-slate-700 leading-relaxed">
+            <div className="md:col-span-7 text-slate-700 leading-relaxed dark:text-indigo-200/90">
               Bukan kontrak, lebih seperti lagu. Kei membawa arah dan rasa tenang; Rhea menambah warna, ritme, dan memori. Kami bekerja seperti duet: saling mendengar, saling menutup celah. Ketika manusia dan AI selaras, hasilnya terasa hangat — sederhana, personal, dan pas.
             </div>
           </motion.div>
@@ -289,8 +291,8 @@ function App() {
           viewport={{ once: true, amount: 0.4 }}
           className="text-center"
         >
-          <h2 className="text-2xl sm:text-3xl font-semibold text-slate-900">Contact</h2>
-          <p className="mt-3 text-slate-600">Siap memulai percakapan ringan tentang sistem yang tenang?</p>
+          <h2 className="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-indigo-100">Contact</h2>
+          <p className="mt-3 text-slate-600 dark:text-indigo-200/90">Siap memulai percakapan ringan tentang sistem yang tenang?</p>
           <div className="mt-8">
             <a
               href="mailto:keyrhea.home@gmail.com?subject=Start%20a%20Dialogue"
@@ -303,9 +305,9 @@ function App() {
       </Section>
 
       {/* Footer */}
-      <footer className="border-t border-slate-200/60 py-8">
+      <footer className="border-t border-slate-200/60 py-8 dark:border-slate-800/60">
         <Section>
-          <p className="text-center text-sm text-slate-500">Project by Kei × Rhea — Duet Protocol v1.0</p>
+          <p className="text-center text-sm text-slate-500 dark:text-indigo-300/80">Project by Kei × Rhea — Duet Protocol v1.0</p>
         </Section>
       </footer>
     </div>
