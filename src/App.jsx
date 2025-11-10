@@ -1,10 +1,10 @@
 import React, { useMemo, useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
+import { motion, useScroll, useTransform } from 'framer-motion'
 import { Mail, ArrowDownRight } from 'lucide-react'
 import Spline from '@splinetool/react-spline'
 
 const Section = ({ id, children, className = '' }) => (
-  <section id={id} className={`w-full max-w-6xl mx-auto px-6 sm:px-8 ${className}`}>
+  <section id={id} className={`w-full max-w-6xl mx-auto px-6 sm:px-8 snap-start ${className}`}>
     {children}
   </section>
 )
@@ -85,6 +85,9 @@ const scrollToId = (e, href) => {
 function App() {
   const heroFade = useFadeIn(0.05)
   const [scrolled, setScrolled] = useState(false)
+  const { scrollYProgress } = useScroll()
+  const orbScale = useTransform(scrollYProgress, [0, 1], [1.02, 1.0])
+  const orbOpacity = useTransform(scrollYProgress, [0, 1], [0.95, 1])
 
   useEffect(() => {
     const onScroll = () => setScrolled((window.scrollY || 0) > 4)
@@ -94,7 +97,7 @@ function App() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-white text-gray-800 selection:bg-blue-100 selection:text-blue-900">
+    <div className="min-h-screen bg-white text-gray-800 selection:bg-blue-100 selection:text-blue-900 snap-y snap-proximity">
       {/* Minimal top nav with fade+blur on scroll */}
       <div className={`sticky top-0 z-20 border-b transition-colors duration-300 ${
         scrolled ? 'backdrop-blur-md supports-[backdrop-filter]:bg-white/70 bg-white/80 border-slate-200/80' : 'backdrop-blur-sm supports-[backdrop-filter]:bg-white/40 bg-white/50 border-transparent'
@@ -119,11 +122,14 @@ function App() {
       </div>
 
       {/* Hero with Spline and subtle living motion */}
-      <div id="home" className="relative">
+      <div id="home" className="relative snap-start mb-32">
+        {/* Depth vignette layer */}
+        <div className="absolute inset-0 pointer-events-none vignette"></div>
         <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-white via-white/70 to-white"></div>
-        <div className="h-[60vh] sm:h-[70vh] md:h-[78vh] w-full spin-slower aura-pulse">
+
+        <motion.div style={{ scale: orbScale, opacity: orbOpacity }} className="h-[60vh] sm:h-[70vh] md:h-[78vh] w-full spin-slower orb-breathe-8s">
           <Spline scene="https://prod.spline.design/4cHQr84zOGAHOehh/scene.splinecode" style={{ width: '100%', height: '100%' }} />
-        </div>
+        </motion.div>
         <div className="absolute inset-0 flex items-center">
           <Section>
             <motion.div
@@ -136,7 +142,8 @@ function App() {
               <h1 className="text-3xl sm:text-5xl md:text-6xl font-semibold leading-tight text-slate-900">
                 Building calm systems for complex worlds.
               </h1>
-              <p className="mt-4 max-w-xl text-slate-700">
+              {/* Dark-mode friendly description text with ~10-15% higher contrast */}
+              <p className="mt-4 max-w-xl text-slate-700 dark:text-white/75">
                 Key × Rhea merancang otomasi yang terasa sunyi: manusia memimpin, AI menyelaraskan. Fokus kami adalah ketenangan, efisiensi, dan kolaborasi yang membuat kerja terasa ringan.
               </p>
               <div className="mt-8 flex items-center gap-4">
