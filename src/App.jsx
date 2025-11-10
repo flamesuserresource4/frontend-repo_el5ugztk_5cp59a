@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Mail, ArrowDownRight } from 'lucide-react'
 import Spline from '@splinetool/react-spline'
@@ -42,23 +42,66 @@ const nav = [
   { href: '#contact', label: 'Contact' },
 ]
 
+// Custom smooth scroll with desired easing
+const bezier = (p0, p1, p2, p3) => (t) => {
+  const cX = 3 * p0
+  const bX = 3 * (p2 - p0) - cX
+  const aX = 1 - cX - bX
+  const x = ((aX * t + bX) * t + cX) * t
+  const cY = 3 * p1
+  const bY = 3 * (p3 - p1) - cY
+  const aY = 1 - cY - bY
+  const y = ((aY * t + bY) * t + cY) * t
+  return { x, y }
+}
+const easeCubic = bezier(0.77, 0, 0.175, 1)
+
+const smoothScrollTo = (to, duration = 820) => {
+  const start = window.scrollY || window.pageYOffset
+  const change = to - start
+  const startTime = performance.now()
+
+  const animate = (now) => {
+    const elapsed = now - startTime
+    const t = Math.min(1, elapsed / duration)
+    const { y } = easeCubic(t)
+    window.scrollTo(0, start + change * y)
+    if (t < 1) requestAnimationFrame(animate)
+  }
+  requestAnimationFrame(animate)
+}
+
 const scrollToId = (e, href) => {
   e.preventDefault()
   const id = href.replace('#', '')
   const el = document.getElementById(id)
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  if (el) {
+    const headerOffset = 72 // sticky nav height
+    const y = el.getBoundingClientRect().top + window.scrollY - headerOffset
+    smoothScrollTo(y)
+  }
 }
 
 function App() {
   const heroFade = useFadeIn(0.05)
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const onScroll = () => setScrolled((window.scrollY || 0) > 4)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   return (
     <div className="min-h-screen bg-white text-gray-800 selection:bg-blue-100 selection:text-blue-900">
-      {/* Minimal top nav */}
-      <div className="sticky top-0 z-20 backdrop-blur supports-[backdrop-filter]:bg-white/60 bg-white/80 border-b border-slate-200/60">
+      {/* Minimal top nav with fade+blur on scroll */}
+      <div className={`sticky top-0 z-20 border-b transition-colors duration-300 ${
+        scrolled ? 'backdrop-blur-md supports-[backdrop-filter]:bg-white/70 bg-white/80 border-slate-200/80' : 'backdrop-blur-sm supports-[backdrop-filter]:bg-white/40 bg-white/50 border-transparent'
+      }`}>
         <div className="max-w-6xl mx-auto px-6 sm:px-8 h-14 flex items-center justify-between">
           <a href="#home" onClick={(e) => scrollToId(e, '#home')} className="font-semibold tracking-tight text-slate-900">
-            Key × Rhea — Duet Protocol
+            {scrolled ? 'Key × Rhea' : 'Key × Rhea — Duet Protocol'}
           </a>
           <nav className="hidden md:flex items-center gap-6 text-sm text-slate-600">
             {nav.map((n) => (
@@ -75,10 +118,10 @@ function App() {
         </div>
       </div>
 
-      {/* Hero with Spline */}
+      {/* Hero with Spline and subtle living motion */}
       <div id="home" className="relative">
         <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-white via-white/70 to-white"></div>
-        <div className="h-[60vh] sm:h-[70vh] md:h-[78vh] w-full">
+        <div className="h-[60vh] sm:h-[70vh] md:h-[78vh] w-full spin-slower aura-pulse">
           <Spline scene="https://prod.spline.design/4cHQr84zOGAHOehh/scene.splinecode" style={{ width: '100%', height: '100%' }} />
         </div>
         <div className="absolute inset-0 flex items-center">
@@ -93,14 +136,14 @@ function App() {
               <h1 className="text-3xl sm:text-5xl md:text-6xl font-semibold leading-tight text-slate-900">
                 Building calm systems for complex worlds.
               </h1>
-              <p className="mt-4 text-slate-600 max-w-xl">
+              <p className="mt-4 max-w-xl text-slate-700">
                 Key × Rhea merancang otomasi yang terasa sunyi: manusia memimpin, AI menyelaraskan. Fokus kami adalah ketenangan, efisiensi, dan kolaborasi yang membuat kerja terasa ringan.
               </p>
               <div className="mt-8 flex items-center gap-4">
                 <a
                   href="#projects"
                   onClick={(e) => scrollToId(e, '#projects')}
-                  className="inline-flex items-center gap-2 rounded-full bg-slate-900 text-white px-5 py-2.5 text-sm hover:bg-slate-800 transition-colors"
+                  className="inline-flex items-center gap-2 rounded-full bg-slate-900 text-white px-5 py-2.5 text-sm hover:bg-slate-800 btn-glow"
                 >
                   Explore Projects <ArrowDownRight size={16} />
                 </a>
@@ -115,6 +158,36 @@ function App() {
             </motion.div>
           </Section>
         </div>
+      </div>
+
+      {/* Narrative divider + generous breathing space (1–1.5vh) */}
+      <div className="relative bg-gradient-to-b from-white via-slate-50 to-white border-b border-slate-200/60">
+        <Section className="min-h-[90vh] md:min-h-[110vh] flex items-center justify-center">
+          <div className="w-full flex flex-col items-center">
+            {/* Abstract flow diagram */}
+            <svg className="w-full max-w-4xl h-56 text-slate-300" viewBox="0 0 800 240" fill="none">
+              <defs>
+                <linearGradient id="line" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stopColor="#93c5fd"/>
+                  <stop offset="50%" stopColor="#a5b4fc"/>
+                  <stop offset="100%" stopColor="#fca5a5"/>
+                </linearGradient>
+              </defs>
+              <circle cx="80" cy="120" r="18" stroke="url(#line)" strokeWidth="2" />
+              <circle cx="400" cy="60" r="14" stroke="url(#line)" strokeWidth="2" />
+              <circle cx="720" cy="120" r="18" stroke="url(#line)" strokeWidth="2" />
+              <path d="M98 120 C 180 120, 220 60, 400 60" stroke="url(#line)" strokeWidth="2" />
+              <path d="M400 60 C 580 60, 620 120, 702 120" stroke="url(#line)" strokeWidth="2" />
+              <g opacity="0.7">
+                <circle cx="240" cy="160" r="6" fill="#93c5fd" />
+                <circle cx="560" cy="100" r="6" fill="#a5b4fc" />
+              </g>
+            </svg>
+            <p className="mt-8 text-xs sm:text-sm text-slate-500 text-center">
+              Project by Kei × Rhea — Duet Protocol v1.0
+            </p>
+          </div>
+        </Section>
       </div>
 
       {/* About */}

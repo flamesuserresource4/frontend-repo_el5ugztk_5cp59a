@@ -22,7 +22,7 @@
   }
 }
 
-/* Custom utility classes for shadcn/ui patterns */
+/* Utilities */
 @layer utilities {
   .animate-in {
     animation-name: animateIn;
@@ -42,5 +42,33 @@
     --tw-exit-rotate: initial;
     --tw-exit-translate-x: initial;
     --tw-exit-translate-y: initial;
+  }
+
+  /* Slow, subtle rotation */
+  @keyframes spin-slower {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  .spin-slower {
+    animation: spin-slower 120s linear infinite;
+  }
+
+  /* Gentle pulse to suggest a living system */
+  @keyframes aura-pulse {
+    0%, 100% { opacity: 0.9; filter: saturate(105%); }
+    50% { opacity: 1; filter: saturate(120%); }
+  }
+  .aura-pulse {
+    animation: aura-pulse 6s ease-in-out infinite;
+  }
+
+  /* Button glow */
+  .btn-glow {
+    box-shadow: 0 0 0 0 rgba(59,130,246,0.0);
+    transition: box-shadow 300ms cubic-bezier(0.22,1,0.36,1), transform 300ms cubic-bezier(0.22,1,0.36,1);
+  }
+  .btn-glow:hover {
+    box-shadow: 0 8px 28px -8px rgba(59,130,246,0.35), 0 0 0 1px rgba(59,130,246,0.35) inset;
+    transform: translateY(-1px);
   }
 }
