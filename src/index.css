@@ -10,17 +10,22 @@
     --font-mona: 'Mona Sans', system-ui, sans-serif;
     --font-ibm-plex: 'IBM Plex Sans', system-ui, sans-serif;
     --font-manrope: 'Manrope', system-ui, sans-serif;
+
+    /* Gradient variables for deep-dark theme, animated via Framer Motion */
+    --bg1: #0b1020;
+    --bg2: #1a1942;
   }
 
   html {
     font-family: var(--font-sans);
     font-feature-settings: "rlig" 1, "calt" 1;
     /* Enable gentle scroll snapping across sections */
-    scroll-snap-type: y proximity;
+    scroll-snap-type: y mandatory;
+    background-color: #0b1020;
   }
 
   body {
-    @apply antialiased;
+    @apply antialiased text-indigo-100 bg-slate-950;
   }
 }
 
@@ -87,8 +92,20 @@
     transform: translateY(-1px);
   }
 
-  /* Subtle radial vignette for background depth */
+  /* Subtle radial vignette for background depth (dark-tuned) */
   .vignette {
-    background: radial-gradient( circle at center, rgba(10,10,10,0.06) 0%, rgba(0,0,0,0.12) 100% );
+    background: radial-gradient( circle at center, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.65) 100% );
+  }
+
+  /* Fixed gradient background driven by CSS variables (animated via Framer Motion) */
+  .gradient-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-image:
+      radial-gradient(1000px 600px at 50% 35%, color-mix(in oklab, var(--bg1) 22%, transparent), transparent 60%),
+      radial-gradient(1200px 700px at 50% 120%, color-mix(in oklab, var(--bg2) 24%, transparent), transparent 70%),
+      linear-gradient(180deg, var(--bg1), var(--bg2));
+    will-change: transform, background-color;
   }
 }
